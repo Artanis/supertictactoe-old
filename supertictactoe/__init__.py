@@ -159,7 +159,10 @@ class SuperTicTacToe(TicTacToe):
             
             self.__cells[board] = (mark, sub_board)
             
-            
+            if self.is_winner(player, cell) and self.winner is None:
+                self.__winner = player
+            elif len(self.moves) >= 81 and self.winner is None:
+                self.__winner = "cats"
     
     def playable(self, board, cell=None):
         if cell is not None:
