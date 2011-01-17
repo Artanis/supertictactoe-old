@@ -1,0 +1,21 @@
+$def with (content)
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <title>$content.title</title>
+        <link rel="stylesheet" href="/static/style.css" />
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+            // <!--
+            google.load("jquery", "1");
+            // -->
+        </script>
+    </head>
+    <body>
+    <h1>$content.title</h1>
+    <div>
+    $:content
+    </div>
+    </body>
+</html>
