@@ -227,9 +227,9 @@ def st3():
             print game
             print "PLAYER {0} PLAYS ON ({1}, {2})".format(
                 player, board, cell),
+            raw_input()
         if comment: print comment,
         print
-        raw_input()
     
     print game.winner
 
