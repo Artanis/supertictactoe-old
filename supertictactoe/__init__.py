@@ -2,7 +2,7 @@
 
 
 # External Modules
-
+import yaml
 
 # Local Modules
 
@@ -28,7 +28,7 @@ class TicTacToe(object):
         if self.playable(cell):
             self.__cells[cell] = player
             self.__moves.append(
-                (len(self.moves), player, cell))
+                (player, cell))
             
             if self.is_winner(player, cell) and self.winner is None:
                 self.__winner = player
@@ -148,7 +148,7 @@ class SuperTicTacToe(TicTacToe):
             
             sub_board.move(player, cell)
             self.__moves.append(
-                (len(self.__moves), player, board, cell))
+                (player, board, cell))
             
             # Set the next board to play on
             if len(self.__cells[cell][1].moves) < 9:
@@ -196,6 +196,10 @@ class SuperTicTacToe(TicTacToe):
     def __str__(self):
         display = ["{0} {1}".format(i, repr(cell)) for i, cell in enumerate(self.__cells)]
         return "\n".join(display).replace("None", "' '").replace("cats", "c")
+    
+    def __repr__(self):
+        return yaml.dump([list(m) for m in self.__moves],
+            indent=4, explicit_start=True, explicit_end=True)
 
 def main(*args, **kwargs):
     mode = args[1] if len(args) > 1 else "st3"
