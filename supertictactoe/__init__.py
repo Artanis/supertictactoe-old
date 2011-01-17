@@ -34,6 +34,8 @@ class TicTacToe(object):
                 self.__winner = player
             elif len(self.moves) >= 9 and self.winner is None:
                 self.__winner = "cats"
+            return True
+        return False
     
     def playable(self, cell):
         """Returns true if the board index is playable (``None``)"""
@@ -163,6 +165,8 @@ class SuperTicTacToe(TicTacToe):
                 self.__winner = player
             elif len(self.moves) >= 81 and self.winner is None:
                 self.__winner = "cats"
+            return True
+        return False
     
     def playable(self, board, cell=None):
         if cell is not None:
