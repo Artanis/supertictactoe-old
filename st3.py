@@ -136,6 +136,7 @@ class SuperTicTacToeBoard(gtk.Table):
 class GameWindow(gtk.Window):
     def __init__(self):
         gtk.Window.__init__(self)
+        self.set_title("Super Tic-Tac-Toe")
         self.connect("destroy", gtk.main_quit)
         
         
