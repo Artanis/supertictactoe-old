@@ -5,17 +5,20 @@ $def with (content)
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
         <title>$content.title</title>
         <link rel="stylesheet" href="/static/style.css" />
-        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-        <script type="text/javascript">
-            // <!--
-            google.load("jquery", "1");
-            // -->
+        <script src="/_ah/channel/jsapi"></script>
+        <script src="https://www.google.com/jsapi"></script>
+        <script>
+            google.load("jquery", "1", {uncompressed:true});
         </script>
     </head>
     <body>
-    <h1>$content.title</h1>
-    <div>
-    $:content
-    </div>
+    <header>
+        <h1>$content.title</h1>
+    </header>
+    <section id="content">
+        $:content
+    </section>
+    <footer>
+    </footer>
     </body>
 </html>

@@ -1,0 +1,25 @@
+$def with()
+$var title="Super Tic-Tac-Toe"
+<script src="/static/game.js"></script>
+<div id="SuperTicTacToe">
+    <table class="super board">
+        <tr>
+        $for x in range(9):
+            <td class="board square" id="SubBoard_$x" data-square="$x">
+                <table>
+                    <tr>
+                    $for y in range(9):
+                        <td class="square cell" data-claimed=""
+                            data-board="$x" data-square="$y"><div/></td>
+                        $if y%9%3 == 2 and not loop.last:
+                            </tr>
+                            <tr>
+                    </tr>
+                </table>
+            </td>
+            $if x % 9 % 3 == 2 and not loop.last:
+                </tr>
+                <tr>
+        </tr>
+    </table>
+</div>
