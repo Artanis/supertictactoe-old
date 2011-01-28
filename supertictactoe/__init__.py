@@ -194,8 +194,24 @@ class SuperTicTacToe(TicTacToe):
         return tuple(self.__moves)
     
     def __str__(self):
-        display = ["{0} {1}".format(i, repr(cell)) for i, cell in enumerate(self.__cells)]
-        return "\n".join(display).replace("None", "' '").replace("cats", "c")
+        marks, boards = zip(*self.__cells)
+        
+        result = []
+        result.append("    ST3   012345678")
+        for i, cell in enumerate(self.__cells):
+            mark, board = cell
+            
+            str_board = "".join([str(c) for c in board.cells])
+            line = "%d | %4s [%s]" % (i, 
+                str(mark).replace("None", "."),
+                str_board.replace("None", "."))
+            
+            result.append(line)
+        
+        return "\n".join(result)
+        
+#        display = ["{0} {1}".format(i, repr(cell)) for i, cell in enumerate(self.__cells)]
+#        return "\n".join(display).replace("None", "' '").replace("cats", "c")
     
     def __repr__(self):
         return yaml.dump([list(m) for m in self.__moves],
