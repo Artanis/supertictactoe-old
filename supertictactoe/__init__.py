@@ -1,8 +1,7 @@
 # System Modules
-
+import pickle
 
 # External Modules
-import yaml
 
 # Local Modules
 
@@ -104,8 +103,12 @@ class TicTacToe(object):
         
         return tuple(self.__moves)
     
-    def __repr__(self):
-        return repr(self.cells)
+    def dump(self):
+        return pickle.dumps(self)
+    
+    @classmethod
+    def load(cls, pickles):
+        return pickle.loads(pickles)
     
     def __str__(self):
         return "{0} {1} {2} | {winner}\n" \
