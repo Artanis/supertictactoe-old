@@ -111,10 +111,9 @@ class TicTacToe(object):
         return pickle.loads(pickles)
     
     def __str__(self):
-        return "{0} {1} {2} | {winner}\n" \
-               "{3} {4} {5} |\n" \
-               "{6} {7} {8} |\n".format(*self.cells,
-            winner=self.winner).replace("None", ".")
+        return "[%s] winner: %s" % (
+            "".join([cell or "." for cell in self.cells]),
+            self.winner)
 
 class SuperTicTacToe(TicTacToe):
     """A Tic-Tac-Toe variant played on a grid of Tic-Tac-Toe boards.
@@ -197,28 +196,13 @@ class SuperTicTacToe(TicTacToe):
         return tuple(self.__moves)
     
     def __str__(self):
-        marks, boards = zip(*self.__cells)
-        
         result = []
-        result.append("    ST3   012345678")
+        result.append("   cells: 012345678  winner: %s" % self.winner)
         for i, cell in enumerate(self.__cells):
             mark, board = cell
-            
-            str_board = "".join([str(c) for c in board.cells])
-            line = "%d | %4s [%s]" % (i, 
-                str(mark).replace("None", "."),
-                str_board.replace("None", "."))
-            
-            result.append(line)
+            result.append("Board %s: %s" % (i, str(board)))
         
         return "\n".join(result)
-        
-#        display = ["{0} {1}".format(i, repr(cell)) for i, cell in enumerate(self.__cells)]
-#        return "\n".join(display).replace("None", "' '").replace("cats", "c")
-    
-    def __repr__(self):
-        return yaml.dump([list(m) for m in self.__moves],
-            indent=4, explicit_start=True, explicit_end=True)
 
 def main(*args, **kwargs):
     mode = args[1] if len(args) > 1 else "st3"
