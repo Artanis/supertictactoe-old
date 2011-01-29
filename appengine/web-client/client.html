@@ -1,24 +1,25 @@
-$def with (content)
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <title>$content.title</title>
-        <link rel="stylesheet" href="/static/style.css" />
+        <title>Super Tic-Tac-Toe</title>
+        <link rel="stylesheet" href="/web-client/style.css" />
         <script src="/_ah/channel/jsapi"></script>
         <script src="https://www.google.com/jsapi"></script>
         <script>
-            google.load("jquery", "1", {uncompressed:true});
+            google.load("jquery", "1");
         </script>
+        <script src="/web-client/game.js"></script>
     </head>
     <body>
     <header>
-        <h1>$content.title</h1>
+        <h1>Super Tic-Tac-Toe</h1>
     </header>
-    <section id="content">
-        $:content
+    <section id="Content">
     </section>
     <footer>
+        <ul id="Status">
+        </ul>
     </footer>
     </body>
 </html>

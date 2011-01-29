@@ -1,10 +1,12 @@
 # System Modules
 import sys
+import pickle
 
 # External Modules
 from django.utils import simplejson as json
 from google.appengine.api import channel
 from google.appengine.api import users
+from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 import web
@@ -15,6 +17,11 @@ import web
 # Application
 render = web.template.render('templates', base='__base__')
 
+class Game(db.Model):
+    player_x = db.UserProperty(required=true)
+    player_o = db.UserProperty()
+    game_state = False
+
 class MainPageHandler(webapp.RequestHandler):
     def get(self):
         game_id = self.request.get('game_id')
@@ -24,8 +31,7 @@ class MainPageHandler(webapp.RequestHandler):
             self.redirect(users.create_login_url(self.request.uri))
             return
         
-        self.response.out.write(
-            render.game_board())
+        self.redirect("/web-client/client.html")
     
     def post(self):
         pass

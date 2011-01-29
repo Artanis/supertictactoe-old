@@ -1,3 +1,19 @@
+#Status li {
+    margin:none;
+    padding:none;
+    float:left;
+    list-style:none;
+    text-indent:none;
+}
+
+#Status li:before {
+    content: "\00a0\00AB\00a0";
+}
+
+#Status a:first-child:before {
+    content: "\00a0";
+}
+
 #SuperTicTacToe table {
     border-collapse: collapse;
 }
@@ -34,22 +50,22 @@
 }
 
 .playerX {
-    background-image:url('/static/symbol-player-x.png');
+    background-image:url('/web-client/symbol-player-x.png');
     background-position:center;
 }
 
 .playerX.cell {
-    background-image:url('/static/symbol-player-x-small.png');
+    background-image:url('/web-client/symbol-player-x-small.png');
     background-position:center;
 }
 
 .playerO {
-    background-image:url('/static/symbol-player-o.png');
+    background-image:url('/web-client/symbol-player-o.png');
     background-position:center;
 }
 
 .playerO.cell {
-    background-image:url('/static/symbol-player-o-small.png');
+    background-image:url('/web-client/symbol-player-o-small.png');
     background-position:center;
 }
 

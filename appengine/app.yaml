@@ -4,9 +4,8 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /static/(.*)
-  static_files: static/\1
-  upload: static/(.*)
+-   url: /web-client
+    static_dir: web-client
 
-- url: .*
-  script: main.py
+-   url: .*
+    script: main.py
