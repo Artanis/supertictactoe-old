@@ -1,0 +1,26 @@
+TicTacToe
+    moves: list
+        tuple
+            str
+            int
+    
+    cells: list
+        str or None
+    
+    winner: str or None
+
+SuperTicTacToe
+    moves: list
+        tuple
+            str
+            int
+            int
+    
+    cells: list
+        tuple
+            str or None
+            TicTacToe
+    
+    winner: str or None
+    next: int or None
+
