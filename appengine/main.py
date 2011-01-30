@@ -1,10 +1,12 @@
 # System Modules
-import sys
-import pickle
 import uuid
 
 # External Modules
-from django.utils import simplejson as json
+try:
+    import json
+except:
+    from django.utils import simplejson as json
+
 from google.appengine.api import channel
 from google.appengine.api import users
 from google.appengine.ext import db
