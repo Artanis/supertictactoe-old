@@ -1,4 +1,5 @@
 # System Modules
+import sys
 
 # External Modules
 try:
@@ -13,10 +14,10 @@ class TicTacToe(object):
     
     """
     
-    def __init__(self, **kwargs):
-        self.moves  = kwargs.get('moves', [])
-        self.cells  = kwargs.get('cells', [None for x in range(9)])
-        self.winner = kwargs.get('winner', None)
+    def __init__(self, game_state={}):
+        self.moves  = game_state.get('moves', [])
+        self.cells  = game_state.get('cells', [None for x in range(9)])
+        self.winner = game_state.get('winner', None)
     
     def move(self, player, cell):
         """Markes the desired square for the player, if it hasn't been
@@ -92,8 +93,8 @@ class TicTacToe(object):
         Really just shunts the unserialized dict into the constructor.
         
         """
-        
-        return cls(**json.loads(json_str))
+        game_state = json.loads(json_str)
+        return cls(game_state)
     
     def __str__(self):
         return "[%s] winner: %s" % (
@@ -123,15 +124,15 @@ class SuperTicTacToe(TicTacToe):
     
     """
     
-    def __init__(self, **kwargs):
-        cells = kwargs.get('cells', None)
-        self.moves  = kwargs.get('moves', [])
-        self.winner = kwargs.get('winnner', None)
-        self.next = kwargs.get('next', None)
+    def __init__(self, game_state={}):
+        cells = game_state.get('cells', None)
+        self.moves  = game_state.get('moves', [])
+        self.winner = game_state.get('winnner', None)
+        self.next = game_state.get('next', None)
         self.cells = []
         
         if cells:
-            self.cells = [(m, TicTacToe(**b)) for m, b in cells]
+            self.cells = [(m, TicTacToe(b)) for m, b in cells]
 #            for mark, board in cells:
 #                self.cells.append((mark, TicTacToe(**board)))
         else:
