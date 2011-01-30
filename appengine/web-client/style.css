@@ -49,6 +49,11 @@
     min-width: 50px;
 }
 
+#SuperTicTacToe .disabled td, #SuperTicTacToe .disabled tr {
+    color: #aaa;
+    border-color:#aaa;
+}
+
 .playerX {
     background-image:url('/web-client/symbol-player-x.png');
     background-position:center;

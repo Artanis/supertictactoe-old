@@ -30,14 +30,16 @@ var SuperTicTacToeBoard = function(id) {
     for(var i = 0; i < 3; i++) {
         var row = $(document.createElement("tr"));
         for(var j = 0; j < 3; j++) {
+            var position = cartesian2linear(j, i, 3);
             var square = $(document.createElement("td"));
             square.addClass("board");
             square.addClass("square");
+            square.attr('data-board', position);
             var board = TicTacToeBoard();
             
             // TODO: Find better way to do this
             $(board).children().children().children().attr(
-                'data-board', cartesian2linear(j, i, 3));
+                'data-board', position);
             
             square.append(board);
             row.append(square);
@@ -92,6 +94,7 @@ $(document).ready(function() {
     var channel_data = undefined;
     var game_id = undefined;
     var player_class = "playerX";
+    var next = undefined;
     
     var channel_is_ready = function() {
         return channel_data !== undefined;
@@ -101,8 +104,41 @@ $(document).ready(function() {
         return game_id !== undefined && channel_is_ready();
     }
     
-    function update_game(game_state) {
-        console.log(game_state);
+    var playable = function(board) {
+        return next === undefined || next == board;
+    }
+    
+    var update_game = function(game_state) {
+        next = game_state.next;
+        
+        //console.log(game_state);
+        
+        for(var i = 0; i < game_state.cells.length; i++) {
+            var cell = game_state.cells[i];
+            var mark = cell[0];
+            var board = cell[1];
+            
+            for(var j = 0; j < board.cells.length; j++) {
+                var cell_mark = board.cells[j];
+                
+                if (cell_mark !== null) {
+                    var squares = $("#SuperTicTacToe td.square.cell[data-board="+i+"][data-square="+j+"]")
+                    squares.addClass("player"+cell_mark);
+                    squares.attr("data-claimed", true);
+                }
+            }
+            
+            html_board = $("#SuperTicTacToe td.square.board[data-board="+i+"]");
+            if(mark !== null) {
+                html_board.addClass("player"+mark);
+            }
+            
+            if(!playable(i)) {
+                html_board.addClass('disabled');
+            } else {
+                html_board.removeClass('disabled');
+            }
+        }
     }
     
     $.getJSON('/channel', function(data) {
@@ -118,8 +154,7 @@ $(document).ready(function() {
                 case "channel-test":
                     channel_ready = (msg.status !== undefined &&
                         msg.status === "Ok");
-                    update_status("Connected");
-                    update_status("Click to create game");
+                    update_status("Connected", 10000);
                     break;
                 case "game-state":
                     update_game(msg);
@@ -127,10 +162,6 @@ $(document).ready(function() {
                 case "new-game":
                     game_id = msg.game_id;
                     update_status("Game created");
-                    break;
-                case "login-required":
-                    //TODO: figure out how to login
-                    console.log(msg)
                     break;
                 default:
                     break;
@@ -143,18 +174,20 @@ $(document).ready(function() {
         }
     });
     
-    var cells = $('.square.cell');
+    var cells = $('#SuperTicTacToe td.square.cell');
     
     cells.click(function(e) {
         if(game_is_ready()) {
             var widget = $(e.currentTarget);
-            console.log(widget.attr('data-board'), widget.attr('data-square'));
-            widget.addClass(player_class);
-            widget.attr('data-claimed', "True");
-            $.post("/move", {
-                game_id: game_id,
-                board: widget.attr('data-board'),
-                square: widget.attr('data-square')});
+            var board = widget.attr('data-board');
+            var square = widget.attr('data-square');
+            
+            if(playable(board)) {
+                $.post("/move", {
+                    game_id: game_id,
+                    board: board,
+                    square: square});
+            }
         } else if(channel_is_ready()) {
             $.post("/new-game", function(data) {
                 console.log(data);
@@ -165,9 +198,14 @@ $(document).ready(function() {
     cells.mouseenter(function(e) {
         if(game_is_ready()) {
             var widget = $(e.currentTarget);
-            var claimed = widget.attr('data-claimed');
-            if (claimed === undefined || claimed === "") {
-                widget.addClass(player_class);
+            var board = widget.attr('data-board');
+            var square = widget.attr('data-square');
+            
+            if(playable(board)) {
+                var claimed = widget.attr('data-claimed');
+                if (claimed === undefined || claimed === "") {
+                    widget.addClass(player_class);
+                }
             }
         }
     });
