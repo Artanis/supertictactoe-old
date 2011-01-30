@@ -1,7 +1,10 @@
 # System Modules
-import pickle
 
 # External Modules
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
 # Local Modules
 
@@ -10,10 +13,10 @@ class TicTacToe(object):
     
     """
     
-    def __init__(self):
-        self.__moves = list()
-        self.__cells = [None for x in range(9)]
-        self.__winner = None
+    def __init__(self, **kwargs):
+        self.moves  = kwargs.get('moves', [])
+        self.cells  = kwargs.get('cells', [None for x in range(9)])
+        self.winner = kwargs.get('winner', None)
     
     def move(self, player, cell):
         """Markes the desired square for the player, if it hasn't been
@@ -25,14 +28,14 @@ class TicTacToe(object):
         """
         
         if self.playable(cell):
-            self.__cells[cell] = player
-            self.__moves.append(
+            self.cells[cell] = player
+            self.moves.append(
                 (player, cell))
             
             if self.is_winner(player, cell) and self.winner is None:
-                self.__winner = player
+                self.winner = player
             elif len(self.moves) >= 9 and self.winner is None:
-                self.__winner = "cats"
+                self.winner = "cats"
             return True
         return False
     
@@ -74,41 +77,23 @@ class TicTacToe(object):
             return victory
         return False
     
-    @property
-    def winner(self):
-        """Returns the win state of the game.
-        
-        * ``None`` for an on-going game.
-        * ``'X'`` for a Player 1 victory.
-        * ``'O'`` for a Player 2 victory.
-        * ``'cats'`` for a tie game.
-        
-        """
-        
-        return self.__winner
-    
-    @property
-    def cells(self):
-        """Returns a tuple of the game board."""
-        
-        return tuple(self.__cells)
-    
-    @property
-    def moves(self):
-        """Returns a tuple containing move tuples.
-        
-        ``(move_number, player_symbol, played_index)``
-        
-        """
-        
-        return tuple(self.__moves)
-    
     def dump(self):
-        return pickle.dumps(self)
+        """Dumps the game state to JSON"""
+        
+        return json.dumps({
+            'moves': self.moves,
+            'cells': self.cells,
+            'winner': self.winner})
     
     @classmethod
-    def load(cls, pickles):
-        return pickle.loads(pickles)
+    def load(cls, json_str):
+        """Loads the game state from JSON.
+        
+        Really just shunts the unserialized dict into the constructor.
+        
+        """
+        
+        return cls(**json.loads(json_str))
     
     def __str__(self):
         return "[%s] winner: %s" % (
@@ -138,67 +123,67 @@ class SuperTicTacToe(TicTacToe):
     
     """
     
-    def __init__(self):
-        self.__moves = list()
-        self.__cells = [(None, TicTacToe()) for x in range(9)]
-        self.__winner = None
-        self.__next = None
+    def __init__(self, **kwargs):
+        cells = kwargs.get('cells', None)
+        self.moves  = kwargs.get('moves', [])
+        self.winner = kwargs.get('winnner', None)
+        self.next = kwargs.get('next', None)
+        self.cells = []
+        
+        if cells:
+            self.cells = [(m, TicTacToe(**b)) for m, b in cells]
+#            for mark, board in cells:
+#                self.cells.append((mark, TicTacToe(**board)))
+        else:
+            self.cells = [(None, TicTacToe()) for x in range(9)]
     
     def move(self, player, board, cell):
         if self.playable(board, cell):
-            mark, sub_board = self.__cells[board]
+            mark, sub_board = self.cells[board]
             
             sub_board.move(player, cell)
-            self.__moves.append(
+            self.moves.append(
                 (player, board, cell))
             
             # Set the next board to play on
-            if len(self.__cells[cell][1].moves) < 9:
-                self.__next = cell
+            if len(self.cells[cell][1].moves) < 9:
+                self.next = cell
             else:
-                self.__next = None
+                self.next = None
             
             if sub_board.winner:
                 mark = sub_board.winner
             
-            self.__cells[board] = (mark, sub_board)
+            self.cells[board] = (mark, sub_board)
             
             if self.is_winner(player, cell) and self.winner is None:
-                self.__winner = player
+                self.winner = player
             elif len(self.moves) >= 81 and self.winner is None:
-                self.__winner = "cats"
+                self.winner = "cats"
             return True
         return False
     
     def playable(self, board, cell=None):
         if cell is not None:
-            board_ok = board == self.__next or self.__next is None
-            cell_ok  = self.__cells[board][1].playable(cell)
+            board_ok = board == self.next or self.next is None
+            cell_ok  = self.cells[board][1].playable(cell)
             return board_ok and cell_ok
         else:
             return self.cells[board] is None
     
-    @property
-    def winner(self):
-        return self.__winner
-    
-    @property
-    def next(self):
-        return self.__next
-    
-    @property
-    def cells(self):
-        cells, boards = zip(*self.__cells)
-        return tuple(cells)
-    
-    @property
-    def moves(self):
-        return tuple(self.__moves)
+    def dump(self):
+        """Dumps the game state to JSON"""
+        
+        return json.dumps({
+            'moves': self.moves,
+            'winner':self.winner,
+            'next': self.next,
+            'cells': [(m, b.__dict__) for m, b in self.cells]})
     
     def __str__(self):
         result = []
         result.append("   cells: 012345678  winner: %s" % self.winner)
-        for i, cell in enumerate(self.__cells):
+        for i, cell in enumerate(self.cells):
             mark, board = cell
             result.append("Board %s: %s" % (i, str(board)))
         
