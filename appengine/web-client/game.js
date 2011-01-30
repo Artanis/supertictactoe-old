@@ -34,8 +34,11 @@ var SuperTicTacToeBoard = function(id) {
             square.addClass("board");
             square.addClass("square");
             var board = TicTacToeBoard();
+            
+            // TODO: Find better way to do this
             $(board).children().children().children().attr(
                 'data-board', cartesian2linear(j, i, 3));
+            
             square.append(board);
             row.append(square);
         }
@@ -58,9 +61,9 @@ $(document).ready(function() {
         $ajaxSetup({data: {game_id: game_id, channel_id: data.channel_id}});
     };
     
-    update_status = function() {
-        var statusbar = $("#Status");
-        var persistent = "#Status > li[data-persistent=true]:visible";
+    var update_status = function() {
+        var statusbar = $("#Status ul");
+        var persistent = "#Status ul > li[data-persistent=true]:visible";
         
         return function(msg, timeout) {
             var status = $(document.createElement("li"));
@@ -83,12 +86,20 @@ $(document).ready(function() {
     }();
     
     update_status("Loading");
-    game_board = SuperTicTacToeBoard("SuperTicTacToe");
+    var game_board = SuperTicTacToeBoard("SuperTicTacToe");
     $("#Content").append(game_board);
     
     var channel_data = undefined;
     var game_id = undefined;
     var player_class = "playerX";
+    
+    var channel_is_ready = function() {
+        return channel_data !== undefined;
+    }
+    
+    var game_is_ready = function() {
+        return game_id !== undefined && channel_is_ready();
+    }
     
     function update_game(game_state) {
         console.log(game_state);
@@ -107,11 +118,19 @@ $(document).ready(function() {
                 case "channel-test":
                     channel_ready = (msg.status !== undefined &&
                         msg.status === "Ok");
-                    update_status("Connected", 10000);
-                    update_status("Click to start game");
+                    update_status("Connected");
+                    update_status("Click to create game");
                     break;
                 case "game-state":
                     update_game(msg);
+                    break;
+                case "new-game":
+                    game_id = msg.game_id;
+                    update_status("Game created");
+                    break;
+                case "login-required":
+                    //TODO: figure out how to login
+                    console.log(msg)
                     break;
                 default:
                     break;
@@ -127,22 +146,24 @@ $(document).ready(function() {
     var cells = $('.square.cell');
     
     cells.click(function(e) {
-        if(channel_ready && game_ready) {
+        if(game_is_ready()) {
             var widget = $(e.currentTarget);
             console.log(widget.attr('data-board'), widget.attr('data-square'));
             widget.addClass(player_class);
             widget.attr('data-claimed', "True");
             $.post("/move", {
-                game_id: 1,
+                game_id: game_id,
                 board: widget.attr('data-board'),
                 square: widget.attr('data-square')});
-        } else if(!game_ready) {
-            $.getJSON("/new-game", )
+        } else if(channel_is_ready()) {
+            $.post("/new-game", function(data) {
+                console.log(data);
+            });
         }
     });
     
     cells.mouseenter(function(e) {
-        if(channel_data && game_id) {
+        if(game_is_ready()) {
             var widget = $(e.currentTarget);
             var claimed = widget.attr('data-claimed');
             if (claimed === undefined || claimed === "") {
@@ -152,7 +173,7 @@ $(document).ready(function() {
     });
     
     cells.mouseleave(function(e) {
-        if(channel_ready && game_ready) {
+        if(game_is_ready()) {
             var widget = $(e.currentTarget);
             var claimed = widget.attr('data-claimed');
             if (claimed === undefined || claimed === "") {
