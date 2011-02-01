@@ -45,7 +45,7 @@ class TicTacToe(object):
         
         return self.cells[cell] is None
     
-    def iswinner(self, player, cell):
+    def is_winner(self, player, cell):
         """Determine if the given player has won the game.
         
         The ``cell`` argument should be the last move the player has
