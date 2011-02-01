@@ -27,30 +27,39 @@ class GameStateHandler(webapp.RequestHandler):
         else:
             self.error(404)
 
-def update_clients(game):
-    message = json.loads(game._game_state)
-    message['mode'] = 'game-state'
-    message = json.dumps(message)
-    
-    channel.send_message(game.player_x.user_id(), message)
-    #channel.send_message(game.player_o.user_id(), message)
-
 class Game(db.Model):
     player_x = db.UserProperty(required=True)
     player_o = db.UserProperty()
     move_x = db.BooleanProperty(default=True)
     _game_state = db.TextProperty()
     
+    def update_players(self):
+        # TODO: find a better way to do this:
+        message = json.loads(self._game_state)
+        message['mode'] = 'game-state'
+        message['move_x'] = self.move_x
+        message = json.dumps(message)
+        
+        print >>sys.stderr, str(self)
+        
+        channel.send_message(self.player_x.user_id(), message)
+        
+        if self.player_o is not None:
+            channel.send_message(self.player_o.user_id(), message)
+    
     def get_player(self, user):
-        if self.player_x == user: return "X"
-        elif self.player_o == user: return "O"
-        else: return None
+        if self.player_x == user: return ("X", self.move_x)
+        elif self.player_o == user: return ("O", not self.move_x)
+        else: return (None, False)
     
     def _fget_game_state(self):
         return SuperTicTacToe.load(self._game_state)
     
     def _fset_game_state(self, value):
         self._game_state = value.dump()
+    
+    def __str__(self):
+        return "<Game(%s, %s, %s)>" % (self.player_x, self.player_o, self.move_x)
     
     game_state = property(_fget_game_state, _fset_game_state)
 
@@ -84,44 +93,82 @@ class MoveHandler(webapp.RequestHandler):
         board = int(self.request.get('board', None))
         square = int(self.request.get('square', None))
         
-        game_model = Game.get_by_key_name(game_id)
-        player = game_model.get_player(user)
+        #print >>sys.stderr, game_id, (board, square), user.user_id()
         
-        print >>sys.stderr, game_id, (board, square), user.user_id()
-        
-        if board is None or square is None or game_model is None:
-            # Bad request
+        # Bad request
+        if board is None or square is None or game_id is None:
             self.error(400)
+            return
+        
+        game_model = Game.get_by_key_name(game_id)
+        player, is_player_turn = game_model.get_player(user)
         
         if player is None:
             # Unauthorized, and that's not going to change.
             self.error(403)
+            return
+        
+        if not is_player_turn:
+            # Turn enforcement
+            self.error(409)
+            return
+        
         else:
             game = game_model.game_state
             if game.move(player, board, square):
                 # Acceptable move
-                self.error(204)
                 game_model.game_state = game
+                game_model.move_x = not game_model.move_x
                 game_model.put()
-                update_clients(game_model)
+                game_model.update_players()
+                self.error(204)
+                return
             else:
                 # Illegal move
-                self.error(400)
+                self.error(403)
+                return
 
 class GameFactory(webapp.RequestHandler):
     def post(self):
         user = users.get_current_user()
+        game_id = self.request.get('game_id', None)
         
         if user is not None:
-            game_id = str(uuid.uuid1())
-            
-            game = Game(key_name = game_id, player_x = user)
-            game.game_state = SuperTicTacToe()
-            game.put()
-            
-            channel.send_message(user.user_id(), json.dumps({
-                'mode': "new-game",
-                'game_id': game_id}))
+            if game_id is None:
+                # makes a new game
+                game_id = str(uuid.uuid1())
+                
+                game = Game(key_name = game_id, player_x = user)
+                game.game_state = SuperTicTacToe()
+                game.put()
+                
+                channel.send_message(user.user_id(), json.dumps({
+                    'mode': "start-game",
+                    'player': "X",
+                    'game_id': game_id}))
+            else:
+                # join an existing game
+                game_model = Game.get_by_key_name(game_id)
+                if game_model.player_o is None:
+                    # Adding player O
+                    game_model.player_o = user
+                    channel.send_message(user.user_id(), json.dumps({
+                        'mode': 'start-game',
+                        'player': "O",
+                        'game_id': game_id}))
+                    game_model.update_players()
+                    game_model.put()
+                    self.error(200)
+                    return
+                else:
+                    #returning player
+                    player, is_player_turn = game_model.get_player(user)
+                    channel.send_message(user.user_id(), json.dumps({
+                        'mode': 'start-game',
+                        'player': player,
+                        'game_id': game_id}))
+                    game_model.update_players()
+                    self.error(200)
         else:
             # not going to catch not-logged-in everywhere. User should
             # login before this stage.
@@ -158,7 +205,7 @@ def main():
     app = webapp.WSGIApplication([
         ('/', MainPageHandler),
         ('/channel', ChannelFactory),
-        ('/new-game', GameFactory),
+        ('/game', GameFactory),
         ('/move', MoveHandler)])
     
     run_wsgi_app(app)

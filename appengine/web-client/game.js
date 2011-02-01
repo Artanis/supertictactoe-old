@@ -93,25 +93,41 @@ $(document).ready(function() {
     
     var channel_data = undefined;
     var game_id = undefined;
-    var player_class = "playerX";
-    var next = undefined;
+    var player = undefined;
+    var next_board = null;
+    var move_x = null;
     
     var channel_is_ready = function() {
         return channel_data !== undefined;
-    }
+    };
     
     var game_is_ready = function() {
         return game_id !== undefined && channel_is_ready();
-    }
+    };
+    
+    var can_play = function() {
+        return game_is_ready() && current_player() === player;
+    };
     
     var playable = function(board) {
-        return next === undefined || next == board;
-    }
+        return next_board === null || next_board === undefined || next_board == board;
+    };
+    
+    var current_player = function() {
+        return move_x?"X":"O" || "";
+    };
+    
+    var notify_player = function() {
+        update_status("Player " + current_player());
+    };
     
     var update_game = function(game_state) {
-        next = game_state.next;
+        next_board = game_state.next;
+        move_x = game_state.move_x;
         
-        //console.log(game_state);
+        notify_player();
+        
+        console.log(game_state);
         
         for(var i = 0; i < game_state.cells.length; i++) {
             var cell = game_state.cells[i];
@@ -159,9 +175,13 @@ $(document).ready(function() {
                 case "game-state":
                     update_game(msg);
                     break;
-                case "new-game":
+                case "start-game":
                     game_id = msg.game_id;
-                    update_status("Game created");
+                    player = msg.player;
+                    $('#GameMetadata #game_id').attr('value', game_id);
+                    $('#GameMetadata #game_id').attr('readonly', 'readonly');
+                    $('#GameMetadata input[type=submit]').fadeOut(1000);
+                    update_status("Game started");
                     break;
                 default:
                     break;
@@ -174,10 +194,31 @@ $(document).ready(function() {
         }
     });
     
+    var create_or_join = $('#GameMetadata form');
+    
+    create_or_join.submit(function() {
+        if(channel_is_ready()) {
+            var txt_game_id = $('#GameMetadata #game_id').attr('value');
+            if (txt_game_id.length) {
+                // join game
+                $.post("/game", {game_id: txt_game_id}, function(data) {
+                    console.log(data);
+                });
+            } else {
+                // new game
+                $.post("/game", function(data) {
+                    console.log(data);
+                });
+            }
+        }
+        
+        return false;
+    });
+    
     var cells = $('#SuperTicTacToe td.square.cell');
     
     cells.click(function(e) {
-        if(game_is_ready()) {
+        if(can_play()) {
             var widget = $(e.currentTarget);
             var board = widget.attr('data-board');
             var square = widget.attr('data-square');
@@ -188,15 +229,11 @@ $(document).ready(function() {
                     board: board,
                     square: square});
             }
-        } else if(channel_is_ready()) {
-            $.post("/new-game", function(data) {
-                console.log(data);
-            });
         }
     });
     
     cells.mouseenter(function(e) {
-        if(game_is_ready()) {
+        if(can_play()) {
             var widget = $(e.currentTarget);
             var board = widget.attr('data-board');
             var square = widget.attr('data-square');
@@ -204,19 +241,17 @@ $(document).ready(function() {
             if(playable(board)) {
                 var claimed = widget.attr('data-claimed');
                 if (claimed === undefined || claimed === "") {
-                    widget.addClass(player_class);
+                    widget.addClass("player"+player);
                 }
             }
         }
     });
     
     cells.mouseleave(function(e) {
-        if(game_is_ready()) {
-            var widget = $(e.currentTarget);
-            var claimed = widget.attr('data-claimed');
-            if (claimed === undefined || claimed === "") {
-                widget.removeClass(player_class);
-            }
+        var widget = $(e.currentTarget);
+        var claimed = widget.attr('data-claimed');
+        if (claimed === undefined || claimed === "") {
+            widget.removeClass("player"+player);
         }
     });
 });
