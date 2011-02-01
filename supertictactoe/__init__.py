@@ -221,10 +221,8 @@ class SuperTicTacToe(TicTacToe):
         
         return "\n".join(result)
 
-def main(*args, **kwargs):
-    mode = args[1] if len(args) > 1 else "st3"
-    
-    {"t3": t3, "st3": st3}[mode]()
+def main(mode, *args, **kwargs):
+    {"t3": t3, "st3": st3}[mode](*args)
 
 def t3():
     from random import shuffle
@@ -241,26 +239,22 @@ def t3():
         if game.winner is not None:
             break
 
-def st3():
-    import yaml
-    from random import shuffle
-    from itertools import cycle
-    
+def st3(replay_file, *args):
     game = SuperTicTacToe()
     
-    moves = yaml.load(open("docs/GAME01.yaml"))
-    for player, board, cell, comment in moves:
-        if player is not None and board is not None and cell is not None:
-            game.move(player, board, cell)
-            print game
-            print "PLAYER {0} PLAYS ON ({1}, {2})".format(
-                player, board, cell),
-            raw_input()
-        if comment: print comment,
-        print
-    
-    print game.winner
+#    with open(replay_file) as json_replay:
+#        replay = json.load(json_replay)
+#        
+#        for player, board, square in replay.get('moves'):
+#            if game.move(player, board, square):
+#                print game
+#                raw_input()
+#            else:
+#                print "Invalid move. Replay likely invalid."
+#                break
 
 if __name__ == "__main__":
     import sys
-    main(*sys.argv)
+    args = list(sys.argv)
+    script = args.pop(0)
+    main(*args)
