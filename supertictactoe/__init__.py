@@ -53,6 +53,7 @@ class TicTacToe(object):
         checked, and if the diagonals need to be checked.
         
         """
+        
         if len(self.moves) > 2:
             # Need at least 3 moves for a player to win. Normally
             # would be 5, but turn enforcement is not implemented here.
@@ -157,11 +158,41 @@ class SuperTicTacToe(TicTacToe):
             
             self.cells[board] = (mark, sub_board)
             
-            if self.is_winner(player, cell) and self.winner is None:
+            if self.is_winner(player, board) and self.winner is None:
                 self.winner = player
             elif len(self.moves) >= 81 and self.winner is None:
                 self.winner = "cats"
             return True
+        return False
+    
+    def is_winner(self, player, cell):
+        """Determine if the given player has won the game.
+        
+        The ``cell`` argument should be the ``board`` portion of the
+        last move the player has made. It is used to determine which
+        column and row needs to be checked, and if the diagonals need
+        to be checked.
+        
+        """
+        
+        column   = cell % 3
+        row      = cell - (cell % 3)
+        diagonal = cell % 2 == 0
+        
+        victory = False
+        
+        cells, boards = zip(*self.cells)
+        
+        if diagonal:
+            victory = victory or \
+                all([c == player for c in cells[0:9:4]]) or \
+                all([c == player for c in cells[2:8:2]])
+            
+            victory = victory or \
+                all([c == player for c in cells[column:9:3]]) or \
+                all([c == player for c in cells[row:row+3]])
+            
+            return victory
         return False
     
     def playable(self, board, cell=None):
