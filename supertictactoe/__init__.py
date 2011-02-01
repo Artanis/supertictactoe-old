@@ -45,7 +45,7 @@ class TicTacToe(object):
         
         return self.cells[cell] is None
     
-    def is_winner(self, player, cell):
+    def iswinner(self, player, cell):
         """Determine if the given player has won the game.
         
         The ``cell`` argument should be the last move the player has
@@ -94,6 +94,7 @@ class TicTacToe(object):
         Really just shunts the unserialized dict into the constructor.
         
         """
+        
         game_state = json.loads(json_str)
         return cls(game_state)
     
