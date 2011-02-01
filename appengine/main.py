@@ -33,6 +33,9 @@ class Game(db.Model):
     move_x = db.BooleanProperty(default=True)
     _game_state = db.TextProperty()
     
+    created = db.DateTimeProperty(auto_now_add=True)
+    modified = db.DateTimeProperty(auto_now=True)
+    
     def update_players(self):
         # TODO: find a better way to do this:
         message = json.loads(self._game_state)
@@ -58,7 +61,7 @@ class Game(db.Model):
     def _fset_game_state(self, value):
         self._game_state = value.dump()
     
-    def __str__(self):
+    def __repr__(self):
         return "<Game(%s, %s, %s)>" % (self.player_x, self.player_o, self.move_x)
     
     game_state = property(_fget_game_state, _fset_game_state)
@@ -174,6 +177,24 @@ class GameFactory(webapp.RequestHandler):
             # login before this stage.
             self.error(401)
 
+class LobbyHandler(webapp.RequestHandler):
+    def get(self):
+        query = db.Query(Game)
+        query.filter("player_o = ", None)
+        query.order("modified")
+        query.order("created")
+        
+        lobby = []
+        for game in query.fetch(10):
+            lobby.append({
+                'game_id': game.key().name(),
+                'player_x': game.player_x.nickname(),
+                'player_o': game.player_o.nickname() if game.player_o else None,
+                'created': repr(game.created),
+                'modified': repr(game.modified)})
+        
+        self.response.out.write(json.dumps(lobby))
+
 class ChannelFactory(webapp.RequestHandler):
     """Serves channels by Ajax"""
     
@@ -206,7 +227,8 @@ def main():
         ('/', MainPageHandler),
         ('/channel', ChannelFactory),
         ('/game', GameFactory),
-        ('/move', MoveHandler)])
+        ('/move', MoveHandler),
+        ('/lobby', LobbyHandler)])
     
     run_wsgi_app(app)
 
