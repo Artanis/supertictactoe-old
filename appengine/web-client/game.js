@@ -5,9 +5,11 @@ var cartesian2linear = function(x, y, wrap) {
 var TicTacToeBoard = function() {
     var table = $(document.createElement("table"));
     
-    for(var i = 0; i < 3; i++) {
+    var i = 0;
+    var j = 0;
+    for(i = 0; i < 3; i++) {
         var row = $(document.createElement("tr"));
-        for(var j = 0; j < 3; j++) {
+        for(j = 0; j < 3; j++) {
             var square = $(document.createElement("td"));
             square.addClass("square");
             square.addClass("cell");
@@ -27,9 +29,11 @@ var SuperTicTacToeBoard = function(id) {
     table.addClass("super");
     table.addClass("board");
     
-    for(var i = 0; i < 3; i++) {
+    var i = 0;
+    var j = 0;
+    for(i = 0; i < 3; i++) {
         var row = $(document.createElement("tr"));
-        for(var j = 0; j < 3; j++) {
+        for(j = 0; j < 3; j++) {
             var position = cartesian2linear(j, i, 3);
             var square = $(document.createElement("td"));
             square.addClass("board");
@@ -57,13 +61,16 @@ var SuperTicTacToeBoard = function(id) {
     }
 };
 
+var get_lobby;
+
 $(document).ready(function() {
-    var new_game = function(data) {
-        game_id = data.game_id;
-        $ajaxSetup({data: {game_id: game_id, channel_id: data.channel_id}});
-    };
+    var channel_data = null;
+    var game_id = null;
+    var player = null;
+    var next_board = null;
+    var move_x = null;
     
-    var update_status = function() {
+    var update_status = (function() {
         var statusbar = $("#Status ul");
         var persistent = "#Status ul > li[data-persistent=true]:visible";
         
@@ -72,7 +79,7 @@ $(document).ready(function() {
             status.append(document.createTextNode(msg));
             
             // end-of-life any visble persistent notifications.
-            $(persistent).delay(2000).fadeOut(1000)
+            $(persistent).delay(2000).fadeOut(1000);
             
             statusbar.prepend(status);
             
@@ -83,19 +90,18 @@ $(document).ready(function() {
                 status.attr('data-persistent', true);
             }
             
-            return status
+            return status;
         };
-    }();
+    }());
     
     update_status("Loading");
-    var game_board = SuperTicTacToeBoard("SuperTicTacToe");
-    $("#Content").append(game_board);
+    $("#GameBoard").append(SuperTicTacToeBoard("SuperTicTacToe"));
     
-    var channel_data = undefined;
-    var game_id = undefined;
-    var player = undefined;
-    var next_board = null;
-    var move_x = null;
+    get_lobby = function() {
+        $.getJSON('/lobby', function (data) {
+            console.log(data);
+        });
+    };
     
     var channel_is_ready = function() {
         return channel_data !== undefined;
@@ -105,16 +111,16 @@ $(document).ready(function() {
         return game_id !== undefined && channel_is_ready();
     };
     
+    var current_player = function() {
+        return move_x?"X":"O" || "";
+    };
+    
     var can_play = function() {
         return game_is_ready() && current_player() === player;
     };
     
     var playable = function(board) {
-        return next_board === null || next_board === undefined || next_board == board;
-    };
-    
-    var current_player = function() {
-        return move_x?"X":"O" || "";
+        return next_board === null || next_board === undefined || next_board === board;
     };
     
     var notify_player = function() {
@@ -129,22 +135,24 @@ $(document).ready(function() {
         
         console.log(game_state);
         
-        for(var i = 0; i < game_state.cells.length; i++) {
+        var i = 0;
+        var j = 0;
+        for(i = 0; i < game_state.cells.length; i++) {
             var cell = game_state.cells[i];
             var mark = cell[0];
             var board = cell[1];
+            var html_board = $("#SuperTicTacToe td.square.board[data-board="+i+"]");
             
-            for(var j = 0; j < board.cells.length; j++) {
+            for(j = 0; j < board.cells.length; j++) {
                 var cell_mark = board.cells[j];
                 
                 if (cell_mark !== null) {
-                    var squares = $("#SuperTicTacToe td.square.cell[data-board="+i+"][data-square="+j+"]")
+                    var squares = $("#SuperTicTacToe td.square.cell[data-board="+i+"][data-square="+j+"]");
                     squares.addClass("player"+cell_mark);
                     squares.attr("data-claimed", true);
                 }
             }
             
-            html_board = $("#SuperTicTacToe td.square.board[data-board="+i+"]");
             if(mark !== null) {
                 html_board.addClass("player"+mark);
             }
@@ -155,7 +163,7 @@ $(document).ready(function() {
                 html_board.removeClass('disabled');
             }
         }
-    }
+    };
     
     $.getJSON('/channel', function(data) {
         channel_data = data;
@@ -164,12 +172,10 @@ $(document).ready(function() {
         var channel_api = new goog.appengine.Channel(data.channel_token);
         var socket = channel_api.open();
         socket.onmessage = function(m) {
-            msg = JSON.parse(m.data);
+            var msg = JSON.parse(m.data);
             
             switch(msg.mode) {
                 case "channel-test":
-                    channel_ready = (msg.status !== undefined &&
-                        msg.status === "Ok");
                     update_status("Connected", 10000);
                     break;
                 case "game-state":
@@ -191,7 +197,7 @@ $(document).ready(function() {
         socket.onopen = function() {
             update_status("Connecting to game server");
             $.post('/channel');
-        }
+        };
     });
     
     var create_or_join = $('#GameMetadata form');
@@ -202,12 +208,12 @@ $(document).ready(function() {
             if (txt_game_id.length) {
                 // join game
                 $.post("/game", {game_id: txt_game_id}, function(data) {
-                    console.log(data);
+                    //console.log(data);
                 });
             } else {
                 // new game
                 $.post("/game", function(data) {
-                    console.log(data);
+                    //console.log(data);
                 });
             }
         }
@@ -236,7 +242,6 @@ $(document).ready(function() {
         if(can_play()) {
             var widget = $(e.currentTarget);
             var board = widget.attr('data-board');
-            var square = widget.attr('data-square');
             
             if(playable(board)) {
                 var claimed = widget.attr('data-claimed');
@@ -254,4 +259,9 @@ $(document).ready(function() {
             widget.removeClass("player"+player);
         }
     });
+    
+//    var lobby_sections = $("#Lobby > div > h2");
+//    lobby_sections.click(function(e) {
+//        $(e.currentTarget).siblings("div").slideToggle();
+//    });
 });
