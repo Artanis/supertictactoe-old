@@ -44,7 +44,7 @@ class Game(db.Model):
         message['move_x'] = self.move_x
         message = json.dumps(message)
         
-        print >>sys.stderr, str(self)
+        #print >>sys.stderr, str(self)
         
         channel.send_message(self.player_x.user_id(), message)
         
@@ -63,7 +63,7 @@ class Game(db.Model):
         self._game_state = value.dump()
     
     def __repr__(self):
-        return "<Game(%s, %s, %s)>" % (self.player_x, self.player_o, self.move_x)
+        return "<Game('%s', '%s')>" % (self.player_x, self.player_o)
     
     game_state = property(_fget_game_state, _fset_game_state)
 
