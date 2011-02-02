@@ -31,6 +31,7 @@ class Game(db.Model):
     player_x = db.UserProperty(required=True)
     player_o = db.UserProperty()
     move_x = db.BooleanProperty(default=True)
+    public_game = db.BooleanProperty(default=True)
     _game_state = db.TextProperty()
     
     created = db.DateTimeProperty(auto_now_add=True)
@@ -141,9 +142,9 @@ class GameFactory(webapp.RequestHandler):
                 # makes a new game
                 game_id = str(uuid.uuid1())
                 
-                game = Game(key_name = game_id, player_x = user)
-                game.game_state = SuperTicTacToe()
-                game.put()
+                game_model = Game(key_name = game_id, player_x = user)
+                game_model.game_state = SuperTicTacToe()
+                game_model.put()
                 
                 channel.send_message(user.user_id(), json.dumps({
                     'mode': "start-game",
@@ -180,6 +181,7 @@ class GameFactory(webapp.RequestHandler):
 class LobbyHandler(webapp.RequestHandler):
     def get(self):
         query = db.Query(Game)
+        query.filter("public_game = ", True)
         query.filter("player_o = ", None)
         query.order("modified")
         query.order("created")
