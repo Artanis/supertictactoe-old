@@ -1,17 +1,24 @@
-#Status li {
-    margin:none;
-    padding:none;
-    float:left;
+html {
+    font-family: sans-serif;
+}
+
+br.clear {
+    clear:both;
+}
+
+input {
+    width: 12.5em;
+}
+
+#Status ul {
     list-style:none;
     text-indent:none;
+    padding:0;
 }
 
-#Status li:before {
-    content: "\00a0\00AB\00a0";
-}
-
-#Status a:first-child:before {
-    content: "\00a0";
+#Status li {
+    float:left;
+    margin: 0.25em;
 }
 
 #GameMetadata #game_id {
