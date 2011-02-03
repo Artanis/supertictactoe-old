@@ -5,67 +5,56 @@
         <title>Super Tic-Tac-Toe</title>
         <link rel="stylesheet" href="/web-client/style.css" />
         <script src="/_ah/channel/jsapi"></script>
-        <script src="https://www.google.com/jsapi"></script>
-        <script>
-            google.load("jquery", "1");
-        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
         <script src="/web-client/game.js"></script>
     </head>
     <body>
+    
     <header>
-        <section id="Title">
-            <h1>Super Tic-Tac-Toe</h1>
-        </section>
+        <h1>Super Tic-Tac-Toe</h1>
     </header>
-    <section id="Lobby">
-        <div id="CreateGame">
-            <h2>Start a Game</h2>
-            <div style="display:none;">
-                <form method="post">
-                    <input type="button" id="CreatePublicGame" value="Create Public Game" />
+    
+    <div class="content">
+        <div id="ClientPanel">
+            <!-- Game Lobby -->
+            <h2>Games Lobby</h2>
+            <div>
+                <h3>Create a new game</h3>
+                <div id="CreateNewGame">
+                    <input type="button" id="CreatePublicGame" value="Create Public Game" /><br />
                     <input type="button" id="CreatePrivateGame" value="Create Private Game" />
-                </form>
+                </div>
+                
+                <h3>Join a private game</h3>
+                <div id="PrivateLobby">
+                    <label for="PrivateGameID">Game ID</label>
+                    <input id="PrivateGameID" name="game_id" /><br/>
+                    <input type="button" value="Join Game" />
+                </div>
+                
+                <h3>Join a public game</h3>
+                <div id="PublicLobby">
+                    <table>
+                        <tr><th>Player 1</th><th>Player 2</th><th>Game Age</th></tr>
+                    </table>
+                    <input type="button" id="UpdateGameLobby" value="Refresh Lobby" />
+                </div>
             </div>
-        </div>
-        
-        <div id="JoinPrivateGame">
-            <h2>Join a Private Game</h2>
+            <!-- Game Board -->
+            <h2>Game Board</h2>
             <div style="display:none;">
-                <form action="post">
-                    <label for="create_game_id">Game ID</label>
-                    <input id="create_game_id" name="game_id" />
-                    <input type="submit" value="Join Game" />
-                </form>
+                <div id="GameData">
+                    <label for="CurrentGameID">Game ID</label>
+                    <input id="CurrentGameID" value="" readonly="readonly"/>
+                </div>
+                <div id="GameBoard">
+                </div>
             </div>
         </div>
-        
-        <div id="GameLobby">
-            <h2>Look for a game</h2>
-            <div style="display:none;">
-                <table>
-                    <tr><th></th><th>Player 1</th><th>Player 2</th><th>Game Age</th></tr>
-                    <tr>
-                        <td><a href="#" data-gameid="...">Join Game</a></td>
-                        <td>Super</td>
-                        <td>&mdash;</td>
-                        <td>1d 3h 15m 33s</td>
-                    </tr>
-                </table>
-                <input type="button" id="update_game_lobby" value="Refresh Lobby" />
-            </div>
-        </div>
-    </section>
-    <section id="Game">
-        <h2>Current Game</h2>
-        <div id="GameData" style="display:none;">
-            <table>
-                <tr><th>Game ID</th><th>Player 1</th><th>Player 2</th></tr>
-            </table>
-            <div id="GameBoard" style="display:none;">
-            </div>
-        </div>
-    </section>
+    </div>
+    
     <footer>
+        <br class="clear" />
         <section id="Status">
             <ul></ul>
         </section>

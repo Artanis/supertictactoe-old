@@ -136,13 +136,18 @@ class GameFactory(webapp.RequestHandler):
     def post(self):
         user = users.get_current_user()
         game_id = self.request.get('game_id', None)
+        public_game = self.request.get('public_game', True)
         
         if user is not None:
             if game_id is None:
                 # makes a new game
                 game_id = str(uuid.uuid1())
                 
-                game_model = Game(key_name = game_id, player_x = user)
+                game_model = Game(
+                    key_name = game_id,
+                    player_x = user,
+                    public_game=public_game)
+                
                 game_model.game_state = SuperTicTacToe()
                 game_model.put()
                 
@@ -150,6 +155,7 @@ class GameFactory(webapp.RequestHandler):
                     'mode': "start-game",
                     'player': "X",
                     'game_id': game_id}))
+                self.error(200)
             else:
                 # join an existing game
                 game_model = Game.get_by_key_name(game_id)
@@ -192,8 +198,8 @@ class LobbyHandler(webapp.RequestHandler):
                 'game_id': game.key().name(),
                 'player_x': game.player_x.nickname(),
                 'player_o': game.player_o.nickname() if game.player_o else None,
-                'created': repr(game.created),
-                'modified': repr(game.modified)})
+                'created': game.created.isoformat(),
+                'modified':game.modified.isoformat()})
         
         self.response.out.write(json.dumps(lobby))
 
