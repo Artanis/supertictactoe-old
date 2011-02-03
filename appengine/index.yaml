@@ -13,5 +13,6 @@ indexes:
 - kind: Game
   properties:
   - name: player_o
+  - name: public_game
   - name: modified
   - name: created
