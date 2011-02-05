@@ -61,8 +61,8 @@ input {
 }
 
 #SuperTicTacToe .disabled td, #SuperTicTacToe .disabled tr {
-    color: #aaa;
-    border-color:#aaa;
+    color: #eee;
+    border-color:#eee;
 }
 
 .playerX {

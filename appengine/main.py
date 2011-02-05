@@ -17,15 +17,8 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 # Local Modules
 from supertictactoe import SuperTicTacToe
 
-class GameStateHandler(webapp.RequestHandler):
-    def get(self):
-        game_id = self.get('game_id')
-        
-        if game_id is not None:
-            game = Game.get_by_key_name(game_id)
-            self.response.out.write(game.game_state.dump())
-        else:
-            self.error(404)
+PLAYER_X = "X"
+PLAYER_O = "O"
 
 class Game(db.Model):
     player_x = db.UserProperty(required=True)
@@ -41,7 +34,7 @@ class Game(db.Model):
         # TODO: find a better way to do this:
         message = json.loads(self._game_state)
         message['mode'] = 'game-state'
-        message['move_x'] = self.move_x
+        message['move_x'] = self.move_x if self.player_o is not None else None
         message = json.dumps(message)
         
         #print >>sys.stderr, str(self)
@@ -52,8 +45,8 @@ class Game(db.Model):
             channel.send_message(self.player_o.user_id(), message)
     
     def get_player(self, user):
-        if self.player_x == user: return ("X", self.move_x)
-        elif self.player_o == user: return ("O", not self.move_x)
+        if self.player_x == user: return (PLAYER_X, self.move_x)
+        elif self.player_o == user: return (PLAYER_O, not self.move_x)
         else: return (None, False)
     
     def _fget_game_state(self):
@@ -62,10 +55,63 @@ class Game(db.Model):
     def _fset_game_state(self, value):
         self._game_state = value.dump()
     
+    def __contains__(self, item):
+        return item in (self.player_x, self.player_o)
+    
     def __repr__(self):
-        return "<Game('%s', '%s')>" % (self.player_x, self.player_o)
+        return ("<Game(player_x='%s', player_o='%s', public_game='%s')>" %
+            (self.player_x, self.player_o, self.public_game))
     
     game_state = property(_fget_game_state, _fset_game_state)
+
+
+class GameStateHandler(webapp.RequestHandler):
+    def get(self):
+        """Sends the game-state.
+        
+        Public games are available to anyone with the game ID. Private
+        games only to the players.
+        
+        Useful for archiving games played on the server locally.
+        
+        """
+        
+        user = users.get_current_user()
+        game_id = self.request.get('game_id', None)
+        
+        if game_id is not None:
+            game = Game.get_by_key_name(game_id)
+            if game.public_game or user in game:
+                self.response.out.write(game.game_state.dump())
+            else:
+                self.error(403)
+                return
+        else:
+            self.error(404)
+    
+    def post(self):
+        """Sends the game state to both players over the channel.
+        
+        Used for forcing a game-state refresh.
+        
+        """
+        
+        user = users.get_current_user()
+        game_id = self.request.get('game_id', None)
+        
+        if game_id is not None:
+            game = Game.get_by_key_name(game_id)
+            
+            if user in game:
+                game.update_players()
+                self.error(200)
+                return
+            else:
+                self.error(403)
+                return
+        else:
+            self.error(404)
+            return
 
 class MainPageHandler(webapp.RequestHandler):
     def get(self):
@@ -153,24 +199,13 @@ class GameFactory(webapp.RequestHandler):
                 
                 channel.send_message(user.user_id(), json.dumps({
                     'mode': "start-game",
-                    'player': "X",
+                    'player': PLAYER_X,
                     'game_id': game_id}))
                 self.error(200)
             else:
                 # join an existing game
                 game_model = Game.get_by_key_name(game_id)
-                if game_model.player_o is None:
-                    # Adding player O
-                    game_model.player_o = user
-                    channel.send_message(user.user_id(), json.dumps({
-                        'mode': 'start-game',
-                        'player': "O",
-                        'game_id': game_id}))
-                    game_model.update_players()
-                    game_model.put()
-                    self.error(200)
-                    return
-                else:
+                if user in game_model:
                     #returning player
                     player, is_player_turn = game_model.get_player(user)
                     channel.send_message(user.user_id(), json.dumps({
@@ -179,6 +214,20 @@ class GameFactory(webapp.RequestHandler):
                         'game_id': game_id}))
                     game_model.update_players()
                     self.error(200)
+                elif game_model.player_o is None:
+                    # Adding player O
+                    game_model.player_o = user
+                    channel.send_message(user.user_id(), json.dumps({
+                        'mode': 'start-game',
+                        'player': PLAYER_O,
+                        'game_id': game_id}))
+                    game_model.update_players()
+                    game_model.put()
+                    self.error(200)
+                    return
+                else:
+                    self.error(403)
+                    return
         else:
             # not going to catch not-logged-in everywhere. User should
             # login before this stage.
@@ -235,6 +284,7 @@ def main():
         ('/', MainPageHandler),
         ('/channel', ChannelFactory),
         ('/game', GameFactory),
+        ('/game-state', GameStateHandler),
         ('/move', MoveHandler),
         ('/lobby', LobbyHandler)])
     

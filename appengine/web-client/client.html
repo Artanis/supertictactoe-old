@@ -5,7 +5,7 @@
         <title>Super Tic-Tac-Toe</title>
         <link rel="stylesheet" href="/web-client/style.css" />
         <script src="/_ah/channel/jsapi"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
         <script src="/web-client/game.js"></script>
     </head>
     <body>
@@ -17,7 +17,7 @@
     <div class="content">
         <div id="ClientPanel">
             <!-- Game Lobby -->
-            <h2>Games Lobby</h2>
+            <h2>Game Lobby</h2>
             <div>
                 <h3>Create a new game</h3>
                 <div id="CreateNewGame">
@@ -45,7 +45,8 @@
             <div style="display:none;">
                 <div id="GameData">
                     <label for="CurrentGameID">Game ID</label>
-                    <input id="CurrentGameID" value="" readonly="readonly"/>
+                    <input id="CurrentGameID" value="" readonly="readonly" onclick="this.select();"/>
+                    <input id="ForceGameRefresh" type="button" value="Force Refresh" />
                 </div>
                 <div id="GameBoard">
                 </div>
