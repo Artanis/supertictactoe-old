@@ -198,8 +198,8 @@ jQuery(function ($) {
                             build_html_supertictactoe_board(
                                 {id:"SuperTicTacToe"}));
                         $("#CurrentGameID").attr("value", game_id);
-                        $("#GameBoard:parent").slideDown();
-                        $("CreateNewGame:parent").slideUp();
+                        $("#GameBoard").parent().slideDown();
+                        $("#CreateNewGame").parent().slideUp();
                         update_status("Ready", 10000);
                         update_status("Waiting for opponent");
                         break;
@@ -286,7 +286,9 @@ jQuery(function ($) {
                     board: board,
                     square: square
                 });
+                return true;
             }
+            return false;
         };
         
         // misc
