@@ -92,6 +92,11 @@ jQuery(function ($) {
             return function (game_state) {
                 var html_boards = $("#SuperTicTacToe td.square.board");
                 var html_squares = $("#SuperTicTacToe td.square.cell");
+                
+                if(last_game_state === null) {
+                    update_status("An opponent has arrived");
+                }
+                
                 last_game_state = game_state;
                 
                 notify_player();
@@ -264,12 +269,11 @@ jQuery(function ($) {
         };
         
         var create_new_game = function (pub) {
-            update_status("Creating game", 5000);
             if(pub === true) {
-                update_status("Create public game");
+                update_status("Creating public game", 5000);
                 $.post("/game");
             } else {
-                update_status("Create private game");
+                update_status("Creating private game", 5000);
                 $.post("/game", {public_game: false});
             }
         }
@@ -379,10 +383,12 @@ jQuery(function ($) {
 
 // Setup page
 jQuery(document).ready(function ($) {
-    $("#ClientPanel :header").click(function (e) {
+    $("#ClientPanel :header").addClass("collapsible").click(function (e) {
         var widget = $(e.currentTarget);
         widget.next().slideToggle();
     });
+    
+    $("#CreateNewGame, #PrivateLobby, #PublicLobby, #LobbyHelp").hide();
     
     $("#CreatePrivateGame").click(function () {
         STTT.create_new_game(false);
@@ -394,7 +400,7 @@ jQuery(document).ready(function ($) {
     
     $("#UpdateGameLobby").click(STTT.refresh_lobby);
     
-    $("#PrivateGame input").click(function () {
+    $("#PrivateLobby input").click(function () {
         var game_id = $("#PrivateGameID").attr('value');
         STTT.join_game(game_id);
     });
@@ -403,6 +409,7 @@ jQuery(document).ready(function ($) {
         STTT.force_refresh();
     });
     
+    STTT.refresh_lobby();
     STTT.open_channel();
 });
 
