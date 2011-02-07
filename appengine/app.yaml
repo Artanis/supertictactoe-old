@@ -1,5 +1,5 @@
 application: super-tic-tac-toe
-version: alpha2
+version: alpha3
 runtime: python
 api_version: 1
 
