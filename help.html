@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Help: Super Tic-Tac-Toe</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/style.css" />
+</head>
+<body>
+    <div id="container">
+        <h1><a name="help">Help</a></h1>
+        <div class="toc">
+            <div id="table-of-contents">
+                <ul>
+                    <li><a href="#rules">Rules of the Game</a></li>
+                    <li><a href="#pygtk">PyGTK Application</a>
+                        <ul>
+                            <li><a href="#pygtk-starting-a-game">Starting a new game</a></li>
+                            <li><a href="pygtk-saving-and-loading-games">Saving and loading games</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <a class="top" href="#help">top</a>
+            <h2><a name="rules">Rules of the Game</a></h2>
+            <div>
+                <ul>
+                    <li><p>The game board is nine Tic-Tac-Toe boards placed in a larger Tic-Tac-Toe board.</p></li>
+                    <li><p>The first move may be played anywhere.</p>
+                        <p>Each move after the first is played in the Tic-Tac-Toe board corresponding to the square the previous move played in.</p>
+                        <p>For example, if Player 1 plays in the top middle board on the bottom left square, then Player 2 must play in the bottom left board.</p>
+                        <p>If the indicated board is full, then that move may be played anywhere.</p></li>
+                    <li><p>Getting three in a row in any board claims the square on the large Tic-Tac-Toe board for the winner</p>
+                        <p>Moves can be made in that board even after it is won, until it is full.</p></li>
+                    <li><p>Getting three in a row on the large Tic-Tac-Toe board wins the game for that player</p>
+                        <p>Known Bug: The game does not end when a player wins, and play may continue until the all squares are full, resulting in a reported Cats Game.</p></li>
+                </ul>
+            </div>
+            <a class="top" href="#help">top</a>
+            <h2><a name="pygtk">PyGTK Application</a></h2>
+            <div>
+                <p><i>The PyGTK application is currently a local-only game that grew out of a simple test UI.</i></p>
+                <p>Upon opening the application, you can begin play in a new game immediately. If you wish to view a replay or continue an old game, see <a href="#pygtk-saving-and-loading-games">Saving and loading games</a>.
+                </p>
+                <a class="top" href="#help">top</a>
+                <h3><a name="pygtk-starting-a-game">Starting a new game</a></h3>
+                <div>
+                    <p>To start a new game, select New Game from the Game menu.<p>
+                    <p>Keep in mind that doing this clears the old game. If you wish to keep the old game, save it</p>
+                </div>
+                <a class="top" href="#help">top</a>
+                <h3><a name="pygtk-saving-and-loading-games">Saving and loading games</a></h3>
+                <div>
+                    <p>You can save a game (either an in-progress or game or a completed game) for continuation or playback later by choosing Save Game from the Game menu. The save file is simply a JSON object containing the current game state, and all moves made by the players.</p>
+                    <p>You can load a game by choosing Load Game from the Game Menu and choosing a saved game. Depending on the state of the game, it will either be loaded for continued play or as a replay. Currently, An in-progress game will load instantly, but a completed game will enter replay mode.</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+</html>
