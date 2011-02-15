@@ -12,7 +12,7 @@ Python development server environment for your platform::
     http://code.google.com/appengine/downloads.html#Google_App_Engine_SDK_for_Python
     
 The App Engine version should be running at
-http://supertictactoe.appspot.com if you just want to look at it, however.
+http://super-tic-tac-toe.appspot.com if you just want to look at it, however.
 
 Ubuntu Linux
 ============
