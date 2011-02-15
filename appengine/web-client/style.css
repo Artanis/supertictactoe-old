@@ -1,0 +1,111 @@
+html {
+    font-family: sans-serif;
+    background-color: #eee;
+}
+
+.collapsible {
+    margin-top: 0.5em;
+    border: 4px solid #aaa;
+    -webkit-border-radius: 10px;
+    -o-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 0.5em;
+    background-image: -webkit-gradient(linear, 0 0, 0 100%,
+        color-stop(0, #eee),
+        color-stop(1, #bbb));
+}
+
+.collapsible + div {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.collapsible:hover {
+    color:white;
+    cursor:pointer;
+}
+
+br.clear {
+    clear:both;
+}
+
+input {
+    width: 12.5em;
+}
+
+#Status ul {
+    list-style:none;
+    text-indent:none;
+    padding:0;
+}
+
+#Status li {
+    float:left;
+    margin: 0.25em;
+}
+
+#GameMetadata #game_id {
+    width:20em;
+}
+
+#SuperTicTacToe table {
+    border-collapse: collapse;
+}
+
+#SuperTicTacToe td {
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+}
+
+#SuperTicTacToe tr {
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}
+
+#SuperTicTacToe td.board, #SuperTicTacToe .super>tbody>tr {
+    border-width: 6px;
+}
+
+#SuperTicTacToe td:first-child, #SuperTicTacToe td:last-child {
+    border:none;
+}
+
+#SuperTicTacToe tr:first-child, #SuperTicTacToe tr:last-child {
+    border:none;
+}
+
+#SuperTicTacToe td.board.square {
+    padding:5px;
+}
+
+#SuperTicTacToe .square.cell div {
+    min-height: 50px;
+    min-width: 50px;
+}
+
+#SuperTicTacToe .disabled td, #SuperTicTacToe .disabled tr {
+    color: rgba(0,0,0,0);
+    border-color:rgba(0, 0, 0, 0);
+}
+
+.playerX {
+    background-image:url('/web-client/symbol-player-x.png');
+    background-position:center;
+}
+
+.playerX.cell {
+    background-image:url('/web-client/symbol-player-x-small.png');
+    background-position:center;
+}
+
+.playerO {
+    background-image:url('/web-client/symbol-player-o.png');
+    background-position:center;
+}
+
+.playerO.cell {
+    background-image:url('/web-client/symbol-player-o-small.png');
+    background-position:center;
+}
+

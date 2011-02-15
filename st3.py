@@ -84,7 +84,6 @@ class TicTacToeBoard(gtk.Table):
             # the buttons list for later access.
             self.attach(btn, y, y+1, x, x+1)
             self.buttons.append(btn)
-        
 
 class SuperTicTacToeBoard(gtk.Table):
     """A Super Tic-Tac-Toe board.

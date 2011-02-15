@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <title>Super Tic-Tac-Toe</title>
+        <link rel="stylesheet" href="/web-client/style.css" />
+        <script src="/_ah/channel/jsapi"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+        <script src="/web-client/game.js"></script>
+    </head>
+    <body>
+    
+    <header>
+        <h1>Super Tic-Tac-Toe</h1>
+    </header>
+    
+    <div class="content">
+        <div id="ClientPanel">
+            <!-- Game Lobby -->
+            <h2>Game Lobby</h2>
+            <div>
+                <h3>Create a new game</h3>
+                <div id="CreateNewGame">
+                    <input type="button" id="CreatePublicGame" value="Create Public Game" /><br class="clear"/>
+                    <input type="button" id="CreatePrivateGame" value="Create Private Game" />
+                </div>
+                
+                <h3>Join a private game</h3>
+                <div id="PrivateLobby">
+                    <label for="PrivateGameID">Game ID</label>
+                    <input id="PrivateGameID" name="game_id" /><br/>
+                    <input type="button" value="Join Game" />
+                </div>
+                
+                <h3>Join a public game</h3>
+                <div id="PublicLobby">
+                    <table>
+                        <tr><th></th><th>Player 1</th><th>Player 2</th><th>Game Age</th></tr>
+                    </table>
+                    <input type="button" id="UpdateGameLobby" value="Refresh Lobby" />
+                </div>
+                <h6>Help</h6>
+                    <div id="LobbyHelp">
+                        <dt>Create a new game</dt>
+                            <dd>A <strong>public game</strong> is visible in the Lobby section, and may be joined by any other player.</dd>
+                            <dd>A <strong>private game</strong> is not visible in the Lobby. To have another person join this game, you must send him the Game ID.</dd>
+                        <dt>Join a private game</dt>
+                            <dd>If someone sent you a game ID, paste it into the text box and click "Join Game" to begin playing.</dd>
+                            <dd>A Game ID looks something like this: <pre>dcdf763c-330d-11e0-88e0-001fd0972fae</pre></dd>
+                            <dd>Joining an existing game means you will be second player.</dd>
+                        <dt>Join a public game</dt>
+                            <dd>This lists ten open public games. Click "Join" to enter one.</dd>
+                            <dd>Joining an existing game means you will be second player.</dd>
+                    </div>
+            </div>
+            <!-- Game Board -->
+            <h2>Game Board</h2>
+            <div style="display:none;">
+                <div id="GameData">
+                    <label for="CurrentGameID">Game ID</label>
+                    <input id="CurrentGameID" value="" readonly="readonly" onclick="this.select();"/>
+                    <input id="ForceGameRefresh" type="button" value="Force Refresh" />
+                </div>
+                <div id="GameBoard">
+                </div>
+                <footer>
+                    <br class="clear" />
+                    <section id="Status">
+                        <ul></ul>
+                    </section>
+                    <br class="clear" />
+                </footer>
+            </div>
+            <h6>Rules</h6>
+            <div id="GameRules">
+                <ul>
+                    <li><p>The game board is nine Tic-Tac-Toe boards placed in a larger Tic-Tac-Toe board.</p></li>
+                    <li><p>The first move may be played anywhere.</p>
+                        <p>Each move after the first is played in the Tic-Tac-Toe board corresponding to the square the previous move played in.</p>
+                        <p>For example, if Player 1 plays in the top middle board on the bottom left square, then Player 2 must play in the bottom left board.</p>
+                        <p>If the indicated board is full, then that move may be played anywhere.</p></li>
+                    <li><p>Getting three in a row in any board claims the square on the large Tic-Tac-Toe board for the winner</p>
+                        <p>Moves can be made in that board even after it is won, until it is full.</p></li>
+                    <li><p>Getting three in a row on the large Tic-Tac-Toe board wins the game for that player</p>
+                        <p>Known Bug: The game does not end when a player wins, and play may continue until the all squares are full, resulting in a reported Cats Game.</p></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>

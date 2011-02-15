@@ -1,0 +1,11 @@
+application: super-tic-tac-toe
+version: alpha4
+runtime: python
+api_version: 1
+
+handlers:
+-   url: /web-client
+    static_dir: web-client
+
+-   url: .*
+    script: main.py
